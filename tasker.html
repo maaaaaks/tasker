@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Offline Priority Sharer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 2em;
+      font-size: 30px;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 500px;
+      height: 100px;
+      margin-bottom: 1em;
+    }
+
+    .priority {
+      margin: 1em 0;
+    }
+
+    .priority label {
+      margin: 0 1em;
+      cursor: pointer;
+    }
+
+    #link {
+      word-break: break-word;
+      margin-top: 1em;
+    }
+
+    #display {
+      white-space: pre-wrap;
+      font-size: 1.2em;
+      color: #333;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+
+<div id="input-area">
+  <h2>Enter text:</h2>
+  <textarea id="textInput" placeholder="Type your message here..."></textarea>
+
+  <div class="priority">
+    <label><input type="radio" name="priority" value="Low" checked> ✅ Low</label>
+    <label><input type="radio" name="priority" value="Medium"> ✅ Medium</label>
+    <label><input type="radio" name="priority" value="High"> ✅ High</label>
+  </div>
+
+  <button onclick="generateLink()">Generate Link</button>
+  <p>Copy this link:</p>
+  <div id="link"></div>
+</div>
+
+<div id="display-area" style="display:none;">
+  <h2 id="priority-label"></h2>
+  ◇---------------------------------------◇
+  <div id="display"></div>
+</div>
+
+<script>
+function generateLink() {
+  const text = document.getElementById('textInput').value;
+  const priority = document.querySelector('input[name="priority"]:checked').value;
+
+  // Combine text and priority with a delimiter (e.g., "::")
+  const payload = encodeURIComponent(priority + "::" + text);
+  const link = location.href.split('#')[0] + '#' + payload;
+
+  document.getElementById('link').textContent = link;
+
+  navigator.clipboard.writeText(link).then(() => {
+    alert('Link copied to clipboard!');
+  }).catch(() => {
+    alert('Could not copy. Copy manually.');
+  });
+}
+
+window.onload = () => {
+  if (location.hash.length > 1) {
+    const encoded = location.hash.slice(1);
+    const decoded = decodeURIComponent(encoded);
+
+    // Split into priority and text
+    const [priority, ...textParts] = decoded.split("::");
+    const text = textParts.join("::"); // in case "::" was in text
+
+    document.getElementById('input-area').style.display = 'none';
+    document.getElementById('display-area').style.display = 'block';
+
+    document.getElementById('priority-label').textContent = `${priority} Priority`;
+    document.getElementById('display').textContent = text;
+  }
+};
+</script>
+
+</body>
+</html>
